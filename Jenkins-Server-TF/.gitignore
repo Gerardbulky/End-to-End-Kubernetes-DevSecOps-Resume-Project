@@ -4,3 +4,8 @@
 
 boss_vm
 boss_vm.pem
+boss_vm.pub
+boss_vm.tfstate
+boss_vm.tfstate.backup
+boss_vm.tfstate.backup.1    
+
