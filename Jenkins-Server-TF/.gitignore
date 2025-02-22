@@ -1,0 +1,6 @@
+.terraform*
+*.tfstate
+*.tfstate.*
+
+boss_vm
+boss_vm.pem
