@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: resume
-        image: bossmanjerry/resumev1:latest
+        image: bossmanjerry/resumev1:8
         ports:
         - containerPort: 5000
 ---
