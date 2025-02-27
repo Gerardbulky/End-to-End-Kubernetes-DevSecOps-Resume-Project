@@ -59,10 +59,12 @@ Install & Configure Terraform and AWS CLI on your local machine to create Jenkin
 #### Terraform Installation Script
 
 ````sh
-wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg - dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
+wget -O- https://apt.releases.hashicorp.com/gpg | \ gpg --dearmor | \ sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
+gpg --no-default-keyring \ --keyring /usr/share/keyrings/hashicorp-archive-keyring.gpg \ --fingerprint
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \ https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \ sudo tee /etc/apt/sources.list.d/hashicorp.list
 sudo apt update
-sudo apt install terraform -y
+sudo apt-get install terraform
 ````
 
 #### AWSCLI Installation Script
@@ -73,6 +75,17 @@ sudo apt install unzip -y
 unzip awscliv2.zip
 sudo ./aws/install
 ````
+
+#### Configure AWS CLI
+
+Run the below command, and add your keys
+
+````sh
+aws configure
+````
+
+![IAM](images/your-image-file.png)
+
 ### PEM Directory
 Create a **Download** directory to store the PEM file
 ```sh
@@ -80,7 +93,7 @@ mkdir -p /home/ubuntu/Downloads
 ```
 Then run your command to generate the key pair:
 ```sh
-aws ec2 create-key-pair --key-name Jenkins-key --query "KeyMaterial" --output text > /home/ubuntu/Downloads/jenkins-key.pem
+aws ec2 create-key-pair --key-name Jenkins-key --query "KeyMaterial" --output text > /home/ubuntu/Downloads/Jenkins-key.pem
 ```
 Verify the File Exists
 ```sh
@@ -99,7 +112,6 @@ aws dynamodb create-table \
     --key-schema AttributeName=LockID,KeyType=HASH \
     --billing-mode PAY_PER_REQUEST \
     --region us-east-1
-
 ```
 
 Now, Configure both the tools
@@ -117,15 +129,7 @@ sudo vim /etc/environment
 
 After doing the changes, restart your machine to reflect the changes of your environment variables.
 
-#### Configure AWS CLI
 
-Run the below command, and add your keys
-
-````sh
-aws configure
-````
-
-![IAM](images/your-image-file.png)
 
 ## Step 3: Deploy the Jenkins Server(EC2) using Terraform
 Clone the Git repository- https://github.com/Gerardbulky/End-to-End-Kubernetes-DevSecOps-Resume-Project.git
