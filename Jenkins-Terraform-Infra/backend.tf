@@ -3,7 +3,7 @@ terraform {
     bucket         = "my-bakett1"
     region         = "us-east-1"
     key            = "End-to-End-Kubernetes-DevSecOps-Resume-Project/Jenkins-Terraform-Infra/terraform.tfstate"
-    dynamodb_table = "Lock-Files"
+    use_lockfile = "Lock-Files"
     encrypt        = true
   }
   required_version = ">=0.13.0"
