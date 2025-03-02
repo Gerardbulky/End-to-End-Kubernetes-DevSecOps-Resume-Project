@@ -86,6 +86,24 @@ aws configure
 
 ![IAM](images/your-image-file.png)
 
+
+
+Now, Configure both the tools
+
+#### Configure Terraform
+
+Edit the file /etc/environment using the below command and add the highlighted lines and add your keys at the blur space.
+
+````sh
+sudo vim /etc/environment
+````
+
+![IAM](images/your-image-file.png)
+
+
+After doing the changes, restart your machine to reflect the changes of your environment variables.
+
+
 ### PEM Directory
 Create a **Download** directory to store the PEM file
 ```sh
@@ -113,22 +131,6 @@ aws dynamodb create-table \
     --billing-mode PAY_PER_REQUEST \
     --region us-east-1
 ```
-
-Now, Configure both the tools
-
-#### Configure Terraform
-
-Edit the file /etc/environment using the below command and add the highlighted lines and add your keys at the blur space.
-
-````sh
-sudo vim /etc/environment
-````
-
-![IAM](images/your-image-file.png)
-
-
-After doing the changes, restart your machine to reflect the changes of your environment variables.
-
 
 
 ## Step 3: Deploy the Jenkins Server(EC2) using Terraform
