@@ -5,7 +5,6 @@ terraform {
     key            = "End-to-End-Kubernetes-DevSecOps-Resume-Project/Jenkins-Terraform-Infra/terraform.tfstate"
     encrypt        = true
     use_lockfile = true
-    dynamodb_table = "Lock-Files"
   }
   required_version = ">=0.13.0"
   required_providers {
