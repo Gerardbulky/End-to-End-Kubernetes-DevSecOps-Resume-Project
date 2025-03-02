@@ -3,20 +3,12 @@ data "aws_vpc" "vpc" {
     name   = "tag:Name"
     values = [var.vpc-name]
   }
-  filter {
-    name   = "cidr-block"
-    values = ["10.0.0.0/16"]
-  }
 }
 
 data "aws_internet_gateway" "igw" {
   filter {
     name   = "tag:Name"
     values = [var.igw-name]
-  }
-  filter {
-    name   = "attachment.vpc-id"
-    values = [data.aws_vpc.vpc.id]
   }
 }
 
@@ -25,20 +17,12 @@ data "aws_subnet" "subnet" {
     name   = "tag:Name"
     values = [var.subnet-name]
   }
-  filter {
-    name   = "cidr-block"
-    values = ["10.0.1.0/24"]
-  }
 }
 
 data "aws_security_group" "sg-default" {
   filter {
     name   = "tag:Name"
     values = [var.security-group-name]
-  }
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.vpc.id]
   }
 }
 
