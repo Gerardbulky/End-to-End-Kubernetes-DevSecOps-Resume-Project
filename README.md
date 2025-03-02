@@ -105,11 +105,11 @@ After doing the changes, restart your machine to reflect the changes of your env
 
 
 ### PEM Directory
-Create a **Download** directory to store the PEM file
+We are now going to create a **Download** directory to store the PEM file
 ```sh
 mkdir -p /home/ubuntu/Downloads
 ```
-Then run your command to generate the key pair:
+Then run your command to create a  key pair called "Jenkins-key" and output it, in the /home/ubuntu/Download directory:
 ```sh
 aws ec2 create-key-pair --key-name Jenkins-key --query "KeyMaterial" --output text > /home/ubuntu/Downloads/Jenkins-key.pem
 ```
@@ -122,7 +122,8 @@ Set Proper Permissions
 chmod 400 /home/ubuntu/Downloads/Jenkins-key.pem
 ```
 
-### Creating DynamoDB Table Manually
+<!-- ### Creating DynamoDB Table Manually
+We are going to create a DynamoDB table for remote locking, to lock our Terraform files.
 ```sh
 aws dynamodb create-table \
     --table-name Lock-Files \
@@ -130,13 +131,13 @@ aws dynamodb create-table \
     --key-schema AttributeName=LockID,KeyType=HASH \
     --billing-mode PAY_PER_REQUEST \
     --region us-east-1
-```
+``` -->
 
 
 ## Step 3: Deploy the Jenkins Server(EC2) using Terraform
 Clone the Git repository- https://github.com/Gerardbulky/End-to-End-Kubernetes-DevSecOps-Resume-Project.git
 
-Navigate to the **Jenkins-Server-TF**
+Navigate to the **Jenkins-Terraform-Infra**
 
 Do some modifications to the backend.tf file such as changing the bucket name and dynamodb table(make sure you have created both manually on AWS Cloud).
 
@@ -203,6 +204,7 @@ terraform --version
 kubectl version
 aws --version
 trivy --version
+vault version
 ````
 ![IAM](images/your-image-file.png)
 
@@ -233,6 +235,177 @@ Click on **Save and Finish**
 Click on **Start using Jenkins**
 
 ![IAM](images/your-image-file.png)
+
+### Install and setup Vault
+
+```sh
+wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo apt update
+sudo apt install vault
+```
+**Installation setup to start vault to run with systemctl: Option 1**
+
+
+Systemd Service (Recommended) Instead of nohup, create a systemd service so Vault restarts automatically:
+
+
+```sh
+vi /etc/systemd/system/vault.service
+```
+```sh
+[Unit]
+Description=Vault server
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/vault server -config=/etc/vault.d/vault.hcl
+ExecReload=/bin/kill --signal HUP $MAINPID
+KillMode=process
+Restart=on-failure
+LimitMEMLOCK=infinity
+User=vault
+Group=vault
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Run the command below, uncomment the tcp under **HTTP listener** to expose your vault over http and uncomment **disable_mlock** and comment **HTTPS listener**.
+```sh
+sudo nano /etc/vault.d/vault.hcl
+```
+```sh
+ui = true
+
+disable_mlock = true
+
+storage "file" {
+  path = "/opt/vault/data"
+}
+
+# HTTP listener
+listener "tcp" {
+  address = "0.0.0.0:8200"
+  tls_disable = 1
+}
+
+api_addr = "http://0.0.0.0:8200"
+cluster_addr = "https://0.0.0.0:8201"
+```
+
+
+Make the path for the date to be stored
+
+```sh
+sudo mkdir -p /opt/vault/data
+```
+
+Start the vault server
+```sh
+sudo systemctl daemon-reload
+sudo systemctl enable vault
+sudo systemctl start vault
+sudo systemctl status vault
+```
+
+##### Set VAULT_ADDR environment variable
+```sh
+export VAULT_ADDR
+```
+```sh
+export VAULT_ADDR='http://0.0.0.0:8200'
+```
+
+To initialize Vault use vault operator init
+
+```sh
+vault operator init -key-shares=1 -key-threshold=1
+```
+Copy the **Unseal Key** and **Initial Root** and paste on a nodepad. 
+
+```sh
+export VAULT_TOKEN=<root token>
+```
+
+```sh
+vault operator unseal
+```
+```sh
+vault login <root token>
+```
+Go to **IP Address:8200** — Shows the UI of the HashiCorp Vault Page
+
+### Set App role
+
+```sh
+vault auth enable approle
+```
+Create a named role **Jenkins**:
+
+```sh
+vault write auth/approle/role/jenkins-role \
+token_num_uses=0 \
+secret_id_num_uses=0 \
+policies="jenkins"
+```
+
+Now, we need the role ID which will help us to integrate with Jenkins
+```sh
+vault read auth/approle/role/jenkins-role/role-id
+```
+
+Get a SecretID issued against the AppRole:
+```sh
+vault write -f auth/approle/role/jenkins-role/secret-id
+```
+
+Install Vault Plugin & Integrate vault with Jenkins:
+Navigate to **Manage Jenkins** ==> **Plugins** ==> **Available Plugins** ==> Select **Hashicorp Vault Plugins** 
+
+
+### Integrate vault with Jenkins
+
+Navigate to **Manage Jenkins** ==> **Credentials** ==> **global** ==> Click on **Add Credential** 
+
+Select credential type as **Vault AppRole Credentials** and fill out the role ID, Secret ID, ID, Description and click on **Add**.
+
+### Create Secrets in Vault
+Enable Secrets where path = "secrets" and it will using key value pair
+
+```sh
+vault secrets enable -path=secrets kv
+```
+
+Write a Secret in Vault at path “secrets/creds/secret-text” with key as secret and value as jenkins123
+
+```sh
+vault write secrets/creds/secret-text username="bossmanjerry"
+```
+We now create a policy to give permission to approle to retrieve secrets
+
+```sh
+vi jenkins-policy.hcl
+```
+```sh
+path "secrets/creds/*" {
+    capabilities = ["read"]
+} 
+```
+
+Create a policy named “jenkins” and use “jenkins-policy.hcl” as its content
+
+```sh
+vault policy write jenkins jenkins-policy.hcl
+```
+
+
+In other for Jenkins to access our credentials, we need to provide the Path to where the secret are stored in Hashicorp Vault.
+
+Navigate to **Manage Jenkins** ==> **Credentials** ==> ***Global*** ==> Click on **add credential**, Select **Vault Secret Text Credentials** and add the Path of the Secrets stored in Vault. Click the **Test Vault Secrets retrival** to check if jenkins can retrieve secrets from Hashicorp Vault.
+
+
+
 
 ## Step 5: We will deploy the EKS Cluster using Jenkins
 Now, go back to your Jenkins Server terminal and configure the AWS.
