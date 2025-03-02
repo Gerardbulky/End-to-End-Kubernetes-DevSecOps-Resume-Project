@@ -3,7 +3,7 @@ terraform {
     bucket         = "my-bakett1"
     region         = "us-east-1"
     key            = "End-to-End-Kubernetes-DevSecOps-Resume-Project/EKS-TF/terraform.tfstate"
-    use_lockfile = "Lock-Files"
+    use_lockfile = true
     encrypt        = true
   }
   required_version = ">=0.13.0"
