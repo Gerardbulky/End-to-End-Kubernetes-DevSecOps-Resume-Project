@@ -489,7 +489,7 @@ Now, we will configure the EKS Cluster on the Jenkins Server
 Run the below command to configure the EKS Cluster
 
 ````sh
-aws eks update-kubeconfig --region us-east-1 --name Tetris-EKS-Cluster
+aws eks update-kubeconfig --region us-east-1 --name Resume-EKS-Cluster
 
 ````
 To validate whether the EKS Cluster was successfully configured or not. Run the below command
@@ -594,7 +594,7 @@ Provide the **GitHub Repo**, enter the path where your deployment file is locate
 Click on **CREATE**.
 
 ![IAM](images/your-image-file.png)
-## Step 7: Install the required plugins and configure the plugins to deploy our Tetris Application Version1
+## Step 7: Install the required plugins and configure the plugins to deploy our Resume Application Version1
 Install the following plugins by going to **Dashboard** -> **Manage Jenkins** -> **Plugins** -> **Available Plugins**
 
 ```sh
@@ -741,7 +741,7 @@ Click on **Create**
 
 ![IAM](images/your-image-file.png)
 
-Now, we are ready to create our Jenkins Pipeline to deploy our Tetris Application.
+Now, we are ready to create our Jenkins Pipeline to deploy our Resume Application.
 
 Go to **Jenkins Dashboard**
 
@@ -753,7 +753,7 @@ Provide the name of your **Pipeline** and click on **OK**.
 
 ![IAM](images/your-image-file.png)
 
-This is the Jenkinsfile to deploy Tetris Application Version 1 on EKS.
+This is the Jenkinsfile to deploy Resume Application Version 1 on EKS.
 
 Copy and paste it into the Jenkins
 
@@ -784,12 +784,12 @@ Copy the DNS name of your load balancer from ArgoCD Console or you can go to AWS
 
 ![IAM](images/your-image-file.png)
 
-## Step 8: We will deploy our Tetris Application Version 2
+## Step 8: We will deploy our Resume Application Version 2
 Now, suppose we have done some modifications to our previous version to make it more good in the sense of GUI or anything else. Then, we will have to deploy our **Version 2** of our same application.
 
 To do that, we will create a new pipeline. We can do it in the existing pipeline as well but this way you will be able to understand clearly.
 
-We have a separate code for our Tetris Version 2. In which Dockerfile is present, so we will build the image and push it on docker and then update the same manifest file instead of v1 we will replace it with v2 manually first.
+We have a separate code for our Resume Version 2. In which Dockerfile is present, so we will build the image and push it on docker and then update the same manifest file instead of v1 we will replace it with v2 manually first.
 
 Hope you get the high overview, what are we going to do next?
 
@@ -803,11 +803,11 @@ Provide the name to your **Pipeline name** and click on **OK**.
 
 ![IAM](images/your-image-file.png)
 
-This is the Jenkinsfile to deploy Tetris Application Version 2 on EKS.
+This is the Jenkinsfile to deploy Resume Application Version 2 on EKS.
 
 Copy and paste it in the Jenkins
 
-https://github.com/Gerardbulky/End-to-End-Kubernetes-DevSecOps-Resume-Project/blob/main/Jenkins-Pipeline-Code/Jenkinsfile-TetrisV2
+https://github.com/Gerardbulky/End-to-End-Kubernetes-DevSecOps-Resume-Project/blob/main/Jenkins-Pipeline-Code/Jenkinsfile-ResumeV2
 
 Click **Apply** & **Save**.
 
@@ -819,7 +819,7 @@ Replace the v1 with v2 in the image section.
 
 ![IAM](images/your-image-file.png)
 
-Now, Once you click on the build to deploy our Tetris Application Version 2.
+Now, Once you click on the build to deploy our Resume Application Version 2.
 You will see our **pipeline** was **successful**.
 
 ![IAM](images/your-image-file.png)

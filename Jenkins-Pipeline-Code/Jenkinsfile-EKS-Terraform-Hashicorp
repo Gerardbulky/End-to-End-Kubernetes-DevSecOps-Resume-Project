@@ -1,0 +1,79 @@
+properties([
+    parameters([
+        string(defaultValue: 'variables.tfvars', description: 'Specify the file name', name: 'File-Name'),
+        choice(choices: ['apply', 'destroy'], description: 'Select Terraform action', name: 'Terraform-Action')
+    ])
+])
+
+pipeline {
+    agent any 
+    stages {
+        stage('Checkout from Git') { 
+            steps {
+                git branch: 'main', url: 'https://github.com/Gerardbulky/End-to-End-Kubernetes-DevSecOps-Resume-Project.git'
+            }
+        }
+        stage('Initializing Terraform') { 
+            steps {
+                withVault(configuration: [disableChildPoliciesOverride: false, timeout: 60, vaultCredentialId: 'vault-approle-cred', vaultUrl: 'http://34.200.244.130:8200'], 
+                vaultSecrets: [[path: 'secrets/creds/my-secret-text', secretValues: [[vaultKey: 'aws_access_key'], [vaultKey: 'aws_secret_access_key'], [vaultKey: 'region']]]]) {
+                    dir('EKS-TF') {
+                        script {
+                            sh 'terraform init'
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Validate Terraform Code') { 
+            steps {
+                withVault(configuration: [disableChildPoliciesOverride: false, timeout: 60, vaultCredentialId: 'vault-approle-cred', vaultUrl: 'http://34.200.244.130:8200'], 
+                vaultSecrets: [[path: 'secrets/creds/my-secret-text', secretValues: [[vaultKey: 'aws_access_key'], [vaultKey: 'aws_secret_access_key'], [vaultKey: 'region']]]]) {
+                    dir('EKS-TF') {
+                        script {
+                            sh 'terraform validate'
+                        }
+                    }
+                }
+            }
+        }
+        stage('Terraform Plan') { 
+            steps {
+                withVault(configuration: [disableChildPoliciesOverride: false, timeout: 60, vaultCredentialId: 'vault-approle-cred', vaultUrl: 'http://34.200.244.130:8200'], 
+                vaultSecrets: [[path: 'secrets/creds/my-secret-text', secretValues: [[vaultKey: 'aws_access_key'], [vaultKey: 'aws_secret_access_key'], [vaultKey: 'region']]]]) {
+                    dir('EKS-TF') {
+                        script {
+                            sh "terraform plan -var-file=${params.'File-Name'}"
+                        }
+                    }
+                }
+            }
+        }
+        stage('Terraform Action') { 
+            steps {
+                withVault(configuration: [disableChildPoliciesOverride: false, timeout: 60, vaultCredentialId: 'vault-approle-cred', vaultUrl: 'http://34.200.244.130:8200'], 
+                vaultSecrets: [[path: 'secrets/creds/my-secret-text', secretValues: [[vaultKey: 'aws_access_key'], [vaultKey: 'aws_secret_access_key'], [vaultKey: 'region']]]]) {
+                    script {
+                        echo "${params.'Terraform-Action'}"
+                        dir('EKS-TF') {
+                            script {
+                                if (params.'Terraform-Action' == 'apply') {
+                                    sh "terraform apply -auto-approve -var-file=${params.'File-Name'}"
+                                } else if (params.'Terraform-Action' == 'destroy') {
+                                    sh "terraform destroy -auto-approve -var-file=${params.'File-Name'}"
+                                } else {
+                                    error "Invalid value for Terraform-Action: ${params.'Terraform-Action'}"
+                                }
+                            }
+                        }
+                    }
+                        
+                }
+                        
+            }       
+        }
+    }
+}
+    
+    
