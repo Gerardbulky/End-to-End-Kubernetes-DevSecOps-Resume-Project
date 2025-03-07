@@ -1,0 +1,122 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Git Clone') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Gerardbulky/End-to-End-Kubernetes-DevSecOps-Resume-Project.git'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                withVault(configuration: [
+                    disableChildPoliciesOverride: false, 
+                    timeout: 876, 
+                    vaultCredentialId: 'vault-cred', 
+                    vaultUrl: 'http://18.214.26.44:8200'], 
+                    vaultSecrets: [
+                        [path: 'secrets/creds/secret-text', secretValues: [[vaultKey: 'dockerhub_username'], [vaultKey: 'dockerhub_password']]]]) {
+                    sh "docker system prune -f"
+                    sh "docker container prune -f"
+                    sh "docker build -t bossmanjerry/resume:v${env.BUILD_NUMBER} -f resume-app/Dockerfile resume-app/"
+                }
+            }
+        }
+
+        stage('Docker Push') {
+            steps {
+                dir('resume-app') {
+                    withVault(configuration: [
+                        disableChildPoliciesOverride: false, 
+                        timeout: 876, 
+                        vaultCredentialId: 'vault-cred', 
+                        vaultUrl: 'http://18.214.26.44:8200'], 
+                        vaultSecrets: [
+                            [path: 'secrets/creds/secret-text', secretValues: [[vaultKey: 'dockerhub_username'], [vaultKey: 'dockerhub_password']]]]) {
+                        sh "docker login -u $dockerhub_username -p $dockerhub_password"
+                    }
+                    sh "docker push bossmanjerry/resume:v${env.BUILD_NUMBER}"
+                }
+            }
+        }
+        
+        
+        stage('Update Manifest file') {
+            environment {
+                GIT_REPO_NAME = "Manifest-config-file"
+                GIT_USER_NAME = "Gerardbulky"
+            }
+            steps {
+                dir('Manifest-update') {
+                    withVault(configuration: [
+                        disableChildPoliciesOverride: false,
+                        timeout: 60,
+                        vaultCredentialId: 'vault-cred',
+                        vaultUrl: 'http://18.214.26.44:8200'
+                    ], vaultSecrets: [[
+                        path: 'secrets/creds/secret-text',
+                        secretValues: [
+                            [vaultKey: 'github_username'],
+                            [vaultKey: 'github_password']
+                        ]
+                    ]]) {
+        
+                        // 🛠 Ensure a clean directory for git clone
+                        sh '''
+                            # Remove the existing directory if it exists
+                            if [ -d "Manifest-config-file" ]; then
+                                echo "Cleaning up existing directory..."
+                                rm -rf Manifest-config-file
+                            fi
+                            
+                            # Clone manifest-update repository with authentication
+                            git clone https://${GIT_USER_NAME}:${github_password}@github.com/${GIT_USER_NAME}/Manifest-config-file.git
+        
+                            # Navigate into the cloned repo
+                            cd Manifest-config-file/Manifest-update
+        
+                            # Verify if deployment-service.yml exists
+                            if [ ! -f deployment-service.yml ]; then
+                                echo "Error: deployment-service.yml not found!"
+                                exit 1
+                            fi
+        
+                            # Extract the current image tag if the file exists
+                            imageTag=$(grep -oP '(?<=image: bossmanjerry/resume:v)[0-9]+' deployment-service.yml || echo "not_found")
+        
+                            # Check if imageTag was found
+                            if [ "$imageTag" = "not_found" ]; then
+                                echo "Error: Image tag not found in deployment-service.yml"
+                                exit 1  # Exit if image tag is missing
+                            fi
+        
+                            # Replace the image tag with the new BUILD_NUMBER
+                            sed -i "s|image: bossmanjerry/resume:v${imageTag}|image: bossmanjerry/resume:v${BUILD_NUMBER}|" deployment-service.yml
+                        '''
+        
+                        // Update the deployment-service.yml file
+                        sh '''
+                            # Configure Git
+                            git config --global user.email "<Your Email>"
+                            git config --global user.name "<Your GitHub Username>"
+        
+                            # Confirm the change
+                            echo "Updated Image Line:"
+                            grep "image:" Manifest-config-file/Manifest-update/deployment-service.yml
+        
+                            # Commit and push changes
+                            cd Manifest-config-file
+                            git add Manifest-update/deployment-service.yml
+                            git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                            git push https://${GIT_USER_NAME}:${github_password}@github.com/${GIT_USER_NAME}/Manifest-config-file.git HEAD:main
+                        '''
+                    }
+                }
+            }
+        }
+        
+
+    }
+}  
+    

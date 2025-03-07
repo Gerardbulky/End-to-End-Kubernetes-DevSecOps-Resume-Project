@@ -323,17 +323,20 @@ To initialize Vault use vault operator init
 vault operator init -key-shares=1 -key-threshold=1
 ```
 Copy the **Unseal Key** and **Initial Root** and paste on a nodepad. 
-
 ```sh
-export VAULT_TOKEN=<root token>
+echo $VAULT_TOKEN
 ```
-
 ```sh
 vault operator unseal
 ```
 ```sh
 vault login <root token>
 ```
+
+```sh
+export VAULT_TOKEN=<root token>
+```
+
 Go to **IP Address:8200** — Shows the UI of the HashiCorp Vault Page
 
 ### Set App role
@@ -380,7 +383,7 @@ vault secrets enable -path=secrets kv
 Write a Secret in Vault at path “secrets/creds/secret-text” with key as secret and value as jenkins123
 
 ```sh
-vault write secrets/creds/secret-text username="bossmanjerry"
+vault write secrets/creds/secret-text secret="jenkins123"
 ```
 We now create a policy to give permission to approle to retrieve secrets
 
@@ -562,7 +565,10 @@ sudo apt install jq -y
 Store the ArgoCD DNS name in the variable
 
 ```sh
-export ARGOCD_SERVER=`kubectl get svc argocd-server -n argocd -o json | jq — raw-output '.status.loadBalancer.ingress[0].hostname'
+export ARGOCD_SERVER=$(kubectl get svc argocd-server -n argocd -o json | jq -r '.status.loadBalancer.ingress[0].hostname')
+```
+```sh
+echo $ARGOCD_SERVER
 ```
 
 ![IAM](images/your-image-file.png)
@@ -607,6 +613,7 @@ Eclipse Temurin installer
 NodeJS
 OWASP Dependency-Check
 SonarQube Scanner
+Pipeline: Github
 ```
 
 ![IAM](images/your-image-file.png)
