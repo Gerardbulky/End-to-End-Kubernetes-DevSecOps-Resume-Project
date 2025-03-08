@@ -254,6 +254,8 @@ Systemd Service (Recommended) Instead of nohup, create a systemd service so Vaul
 vi /etc/systemd/system/vault.service
 ```
 ```sh
+Try this:
+
 [Unit]
 Description=Vault server
 After=network.target
@@ -266,6 +268,23 @@ Restart=on-failure
 LimitMEMLOCK=infinity
 User=vault
 Group=vault
+
+[Install]
+WantedBy=multi-user.target
+
+OR
+
+[Unit]
+Description=HashiCorp Vault
+Documentation=https://www.vaultproject.io/docs/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/vault server -config=/etc/vault.d/vault.hcl
+ExecReload=/bin/kill --signal HUP $MAINPID
+LimitNOFILE=65536
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target

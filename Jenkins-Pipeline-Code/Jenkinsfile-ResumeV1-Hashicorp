@@ -45,7 +45,6 @@ pipeline {
         stage('Update Manifest file') {
             environment {
                 GIT_REPO_NAME = "Manifest-config-file"
-                GIT_USER_NAME = "Gerardbulky"
             }
             steps {
                 dir('Manifest-update') {
@@ -71,7 +70,7 @@ pipeline {
                             fi
                             
                             # Clone manifest-update repository with authentication
-                            git clone https://${GIT_USER_NAME}:${github_password}@github.com/${GIT_USER_NAME}/Manifest-config-file.git
+                            git clone https://${github_username}:${github_password}@github.com/${github_username}/Manifest-config-file.git
         
                             # Navigate into the cloned repo
                             cd Manifest-config-file/Manifest-update
@@ -109,7 +108,7 @@ pipeline {
                             cd Manifest-config-file
                             git add Manifest-update/deployment-service.yml
                             git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-                            git push https://${GIT_USER_NAME}:${github_password}@github.com/${GIT_USER_NAME}/Manifest-config-file.git HEAD:main
+                            git push https://${github_username}:${github_password}@github.com/${github_username}/Manifest-config-file.git HEAD:main
                         '''
                     }
                 }
