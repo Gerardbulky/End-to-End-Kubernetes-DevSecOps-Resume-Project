@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket         = "my-bakett2"
+    bucket         = "my-bakett22"
     region         = "us-east-1"
     key            = "End-to-End-Kubernetes-DevSecOps-Resume-Project/Jenkins-Terraform-Infra/terraform.tfstate"
     encrypt        = true
