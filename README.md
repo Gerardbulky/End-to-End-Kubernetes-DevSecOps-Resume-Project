@@ -59,12 +59,9 @@ Install & Configure Terraform and AWS CLI on your local machine to create Jenkin
 #### Terraform Installation Script
 
 ````sh
-sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
-wget -O- https://apt.releases.hashicorp.com/gpg | \ gpg --dearmor | \ sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
-gpg --no-default-keyring \ --keyring /usr/share/keyrings/hashicorp-archive-keyring.gpg \ --fingerprint
-echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \ https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \ sudo tee /etc/apt/sources.list.d/hashicorp.list
-sudo apt update
-sudo apt-get install terraform
+wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo apt update && sudo apt install terraform
 ````
 
 #### AWSCLI Installation Script
@@ -77,16 +74,6 @@ sudo ./aws/install
 ````
 
 #### Configure AWS CLI
-
-Run the below command, and add your keys
-
-````sh
-aws configure
-````
-
-![IAM](images/your-image-file.png)
-
-
 
 Now, Configure both the tools
 
@@ -103,6 +90,13 @@ sudo vim /etc/environment
 
 After doing the changes, restart your machine to reflect the changes of your environment variables.
 
+Run the below command, and add your keys
+
+````sh
+aws configure
+````
+
+![IAM](images/your-image-file.png)
 
 ### PEM Directory
 We are now going to create a **Download** directory to store the PEM file
