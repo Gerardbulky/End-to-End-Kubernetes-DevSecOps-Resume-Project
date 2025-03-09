@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    environment {
+        SCANNER_HOME = tool 'sonar-scanner'
+    }
 
     stages {
         stage('Git Clone') {
@@ -8,13 +11,47 @@ pipeline {
             }
         }
 
+        stage('Sonarqube Analysis') {
+            steps {
+                dir('resume-app') {
+                    withSonarQubeEnv('sonar-server') {
+                        sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=argocd-project \
+                        -Dsonar.projectKey=argocd-project '''
+                    }
+                }
+            }
+        }
+        
+        stage('Quality Check') {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token' 
+                }
+            }
+        }
+        stage('OWASP Dependency-Check Scan') {
+            steps {
+                dir('resume-app') {
+                    dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
+                    dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+                }
+            }
+        }
+        stage('Trivy File Scan') {
+            steps {
+                dir('resume-app') {
+                    sh 'trivy fs . > trivyfs.txt'
+                }
+            }
+        }
+
         stage('Docker Build') {
             steps {
                 withVault(configuration: [
                     disableChildPoliciesOverride: false, 
                     timeout: 876, 
-                    vaultCredentialId: 'vault-cred', 
-                    vaultUrl: 'http://18.214.26.44:8200'], 
+                    vaultCredentialId: 'vault-app-role', 
+                    vaultUrl: 'http://44.203.24.162:8200'], 
                     vaultSecrets: [
                         [path: 'secrets/creds/secret-text', secretValues: [[vaultKey: 'dockerhub_username'], [vaultKey: 'dockerhub_password']]]]) {
                     sh "docker system prune -f"
@@ -30,8 +67,8 @@ pipeline {
                     withVault(configuration: [
                         disableChildPoliciesOverride: false, 
                         timeout: 876, 
-                        vaultCredentialId: 'vault-cred', 
-                        vaultUrl: 'http://18.214.26.44:8200'], 
+                        vaultCredentialId: 'vault-app-role', 
+                        vaultUrl: 'http://44.203.24.162:8200'], 
                         vaultSecrets: [
                             [path: 'secrets/creds/secret-text', secretValues: [[vaultKey: 'dockerhub_username'], [vaultKey: 'dockerhub_password']]]]) {
                         sh "docker login -u $dockerhub_username -p $dockerhub_password"
@@ -51,8 +88,8 @@ pipeline {
                     withVault(configuration: [
                         disableChildPoliciesOverride: false,
                         timeout: 60,
-                        vaultCredentialId: 'vault-cred',
-                        vaultUrl: 'http://18.214.26.44:8200'
+                        vaultCredentialId: 'vault-app-role',
+                        vaultUrl: 'http://44.203.24.162:8200'
                     ], vaultSecrets: [[
                         path: 'secrets/creds/secret-text',
                         secretValues: [
@@ -97,8 +134,8 @@ pipeline {
                         // Update the deployment-service.yml file
                         sh '''
                             # Configure Git
-                            git config --global user.email "<Your Email>"
-                            git config --global user.name "<Your GitHub Username>"
+                            git config --global user.email "gerardambe@yahoo.com"
+                            git config --global user.name "Gerardbulky"  
         
                             # Confirm the change
                             echo "Updated Image Line:"

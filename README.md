@@ -245,7 +245,7 @@ Systemd Service (Recommended) Instead of nohup, create a systemd service so Vaul
 
 
 ```sh
-vi /etc/systemd/system/vault.service
+sudo vi /etc/systemd/system/vault.service
 ```
 ```sh
 Try this:
