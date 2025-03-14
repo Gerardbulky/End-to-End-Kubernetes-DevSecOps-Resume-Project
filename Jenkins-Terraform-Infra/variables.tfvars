@@ -8,4 +8,4 @@ instance-name = "Jenkins-server"
 iam-role      = "Jenkins-iam-role"
 
 key-name = "SSH-key"
-key-file = "SSH.pem"
+private-key-file = "/home/ubuntu/.ssh/SSH-key.pem"

@@ -8,4 +8,4 @@ variable "instance-name" {}
 variable "iam-role" {}
 
 variable "key-name" {}
-variable "key-file" {}
+variable "private-key-file" {}

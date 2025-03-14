@@ -10,5 +10,5 @@ resource "aws_key_pair" "my_key_pair" {
 
 resource "local_file" "my_private_key" {
   content  = tls_private_key.my_rsa_key.private_key_pem
-  filename = var.key-file
+  filename = var.private-key-file
 }
