@@ -7,5 +7,5 @@ variable "instance-name" {}
 
 variable "iam-role" {}
 
-variable "ssh-key-name" {}
-variable "private-key-file" {}
+variable "key-name" {}
+variable "key-file" {}

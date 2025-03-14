@@ -7,5 +7,5 @@ instance-name = "Jenkins-server"
 
 iam-role      = "Jenkins-iam-role"
 
-ssh-key-name      = "Jenkins-key"
-private-key-file      = "Jenkins-key.pem"
+key-name = "SSH-key"
+key-file = "SSH.pem"
