@@ -4,6 +4,8 @@ subnet-name   = "Jenkins-subnet"
 rt-name       = "Jenkins-route-table"
 sg-name       = "Jenkins-sg"
 instance-name = "Jenkins-server"
-key-name      = "Jenkins-keys"
-Jenkins-private-key-file ="Jenkins-keys.pem"
+
 iam-role      = "Jenkins-iam-role"
+
+ssh-key-name      = "Jenkins-key"
+private-key-file      = "Jenkins-private-key"
