@@ -15,7 +15,7 @@ pipeline {
         }
         stage('Initializing Terraform') { 
             steps {
-                withVault(configuration: [disableChildPoliciesOverride: false, timeout: 60, vaultCredentialId: 'vault-app-role', vaultUrl: 'http://44.203.24.162:8200'], 
+                withVault(configuration: [disableChildPoliciesOverride: false, timeout: 60, vaultCredentialId: 'vault-app-role', vaultUrl: 'http://3.233.241.7:8200'], 
                 vaultSecrets: [[path: 'secrets/creds/secret-text', secretValues: [[vaultKey: 'aws_access_key'], [vaultKey: 'aws_secret_access_key'], [vaultKey: 'region']]]]) {
                     dir('EKS-TF') {
                         script {
@@ -28,7 +28,7 @@ pipeline {
         
         stage('Validate Terraform Code') { 
             steps {
-                withVault(configuration: [disableChildPoliciesOverride: false, timeout: 60, vaultCredentialId: 'vault-app-role', vaultUrl: 'http://44.203.24.162:8200'], 
+                withVault(configuration: [disableChildPoliciesOverride: false, timeout: 60, vaultCredentialId: 'vault-app-role', vaultUrl: 'http://3.233.241.7:8200'], 
                 vaultSecrets: [[path: 'secrets/creds/secret-text', secretValues: [[vaultKey: 'aws_access_key'], [vaultKey: 'aws_secret_access_key'], [vaultKey: 'region']]]]) {
                     dir('EKS-TF') {
                         script {
@@ -40,7 +40,7 @@ pipeline {
         }
         stage('Terraform Plan') { 
             steps {
-                withVault(configuration: [disableChildPoliciesOverride: false, timeout: 60, vaultCredentialId: 'vault-app-role', vaultUrl: 'http://44.203.24.162:8200'], 
+                withVault(configuration: [disableChildPoliciesOverride: false, timeout: 60, vaultCredentialId: 'vault-app-role', vaultUrl: 'http://3.233.241.7:8200'], 
                 vaultSecrets: [[path: 'secrets/creds/secret-text', secretValues: [[vaultKey: 'aws_access_key'], [vaultKey: 'aws_secret_access_key'], [vaultKey: 'region']]]]) {
                     dir('EKS-TF') {
                         script {
@@ -52,7 +52,7 @@ pipeline {
         }
         stage('Terraform Action') { 
             steps {
-                withVault(configuration: [disableChildPoliciesOverride: false, timeout: 60, vaultCredentialId: 'vault-app-role', vaultUrl: 'http://44.203.24.162:8200'], 
+                withVault(configuration: [disableChildPoliciesOverride: false, timeout: 60, vaultCredentialId: 'vault-app-role', vaultUrl: 'http://3.233.241.7:8200'], 
                 vaultSecrets: [[path: 'secrets/creds/secret-text', secretValues: [[vaultKey: 'aws_access_key'], [vaultKey: 'aws_secret_access_key'], [vaultKey: 'region']]]]) {
                     script {
                         echo "${params.'Terraform-Action'}"

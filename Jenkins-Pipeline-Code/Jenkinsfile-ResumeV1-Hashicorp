@@ -15,20 +15,23 @@ pipeline {
             steps {
                 dir('resume-app') {
                     withSonarQubeEnv('sonar-server') {
-                        sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=argocd-project \
-                        -Dsonar.projectKey=argocd-project '''
+                        sh ''' 
+                        $SCANNER_HOME/bin/sonar-scanner \
+                        -Dsonar.projectName=resume-project \
+                        -Dsonar.projectKey=resume-project 
+                        '''
                     }
                 }
             }
         }
         
-        stage('Quality Check') {
-            steps {
-                script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token' 
-                }
-            }
-        }
+        // stage('Quality Check') {
+        //     steps {
+        //         script {
+        //             waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token' 
+        //         }
+        //     }
+        // }
         stage('OWASP Dependency-Check Scan') {
             steps {
                 dir('resume-app') {
@@ -51,7 +54,7 @@ pipeline {
                     disableChildPoliciesOverride: false, 
                     timeout: 876, 
                     vaultCredentialId: 'vault-app-role', 
-                    vaultUrl: 'http://44.203.24.162:8200'], 
+                    vaultUrl: 'http://3.233.241.7:8200'], 
                     vaultSecrets: [
                         [path: 'secrets/creds/secret-text', secretValues: [[vaultKey: 'dockerhub_username'], [vaultKey: 'dockerhub_password']]]]) {
                     sh "docker system prune -f"
@@ -68,7 +71,7 @@ pipeline {
                         disableChildPoliciesOverride: false, 
                         timeout: 876, 
                         vaultCredentialId: 'vault-app-role', 
-                        vaultUrl: 'http://44.203.24.162:8200'], 
+                        vaultUrl: 'http://3.233.241.7:8200'], 
                         vaultSecrets: [
                             [path: 'secrets/creds/secret-text', secretValues: [[vaultKey: 'dockerhub_username'], [vaultKey: 'dockerhub_password']]]]) {
                         sh "docker login -u $dockerhub_username -p $dockerhub_password"
@@ -89,7 +92,7 @@ pipeline {
                         disableChildPoliciesOverride: false,
                         timeout: 60,
                         vaultCredentialId: 'vault-app-role',
-                        vaultUrl: 'http://44.203.24.162:8200'
+                        vaultUrl: 'http://3.233.241.7:8200'
                     ], vaultSecrets: [[
                         path: 'secrets/creds/secret-text',
                         secretValues: [
@@ -98,7 +101,7 @@ pipeline {
                         ]
                     ]]) {
         
-                        // 🛠 Ensure a clean directory for git clone
+                        // Ensure a clean directory for git clone
                         sh '''
                             # Remove the existing directory if it exists
                             if [ -d "Manifest-config-file" ]; then
@@ -134,8 +137,8 @@ pipeline {
                         // Update the deployment-service.yml file
                         sh '''
                             # Configure Git
-                            git config --global user.email "gerardambe@yahoo.com"
-                            git config --global user.name "Gerardbulky"  
+                            git config --global user.email "<your-email>"
+                            git config --global user.name "<your-email-username>"  
         
                             # Confirm the change
                             echo "Updated Image Line:"
