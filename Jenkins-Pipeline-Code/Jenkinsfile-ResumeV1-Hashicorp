@@ -25,13 +25,15 @@ pipeline {
             }
         }
         
-        // stage('Quality Check') {
-        //     steps {
-        //         script {
-        //             waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token' 
-        //         }
-        //     }
-        // }
+        stage('Quality Check') {
+            steps {
+                dir('resume-app') {
+                    script {
+                        waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token' 
+                    }
+                }
+            }
+        }
         stage('OWASP Dependency-Check Scan') {
             steps {
                 dir('resume-app') {
@@ -54,7 +56,7 @@ pipeline {
                     disableChildPoliciesOverride: false, 
                     timeout: 876, 
                     vaultCredentialId: 'vault-app-role', 
-                    vaultUrl: 'http://3.233.241.7:8200'], 
+                    vaultUrl: 'http://3.238.69.196:8200'], 
                     vaultSecrets: [
                         [path: 'secrets/creds/secret-text', secretValues: [[vaultKey: 'dockerhub_username'], [vaultKey: 'dockerhub_password']]]]) {
                     sh "docker system prune -f"
@@ -71,7 +73,7 @@ pipeline {
                         disableChildPoliciesOverride: false, 
                         timeout: 876, 
                         vaultCredentialId: 'vault-app-role', 
-                        vaultUrl: 'http://3.233.241.7:8200'], 
+                        vaultUrl: 'http://3.238.69.196:8200'], 
                         vaultSecrets: [
                             [path: 'secrets/creds/secret-text', secretValues: [[vaultKey: 'dockerhub_username'], [vaultKey: 'dockerhub_password']]]]) {
                         sh "docker login -u $dockerhub_username -p $dockerhub_password"
@@ -92,7 +94,7 @@ pipeline {
                         disableChildPoliciesOverride: false,
                         timeout: 60,
                         vaultCredentialId: 'vault-app-role',
-                        vaultUrl: 'http://3.233.241.7:8200'
+                        vaultUrl: 'http://3.238.69.196:8200'
                     ], vaultSecrets: [[
                         path: 'secrets/creds/secret-text',
                         secretValues: [

@@ -623,7 +623,6 @@ Docker Pipeline
 Docker API
 docker-build-step
 Eclipse Temurin installer
-NodeJS
 OWASP Dependency-Check
 SonarQube Scanner
 Pipeline: Github
