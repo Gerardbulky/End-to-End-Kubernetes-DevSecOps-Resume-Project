@@ -272,9 +272,9 @@ Group=vault
 
 [Install]
 WantedBy=multi-user.target
-
+```
 OR
-
+```sh
 [Unit]
 Description=HashiCorp Vault
 Documentation=https://www.vaultproject.io/docs/
@@ -393,6 +393,8 @@ Navigate to **Manage Jenkins** ==> **Credentials** ==> **global** ==> Click on *
 
 Select credential type as **Vault AppRole Credentials** and fill out the role ID, Secret ID, ID, Description and click on **Add**.
 
+![IAM](images/vault-app-role.png)
+
 ### Create Secrets in Vault
 Enable Secrets where path = "secrets" and it will using key value pair
 
@@ -427,57 +429,14 @@ In other for Jenkins to access our credentials, we need to provide the Path to w
 
 Navigate to **Manage Jenkins** ==> **Credentials** ==> ***Global*** ==> Click on **add credential**, Select **Vault Secret Text Credentials** and add the Path of the Secrets stored in Vault. Click the **Test Vault Secrets retrival** to check if jenkins can retrieve secrets from Hashicorp Vault.
 
+![IAM](images/retrieve-secret.png)
 
+Now, go to your Hashicorp server and add your credentials.
+
+![IAM](images/hashicorp-credentials.png)
 
 
 ## Step 5: We will deploy the EKS Cluster using Jenkins
-Now, go back to your Jenkins Server terminal and configure the AWS.
-
-![IAM](images/your-image-file.png)
-
-Click on **Manage Jenkins**
-
-![IAM](images/your-image-file.png)
-
-Click on **Plugins**
-
-![IAM](images/your-image-file.png)
-
-Select the **Available plugins** and install the following plugins and click on **Install**
-
-````sh
-AWS Credentials
-Pipeline: AWS Steps
-````
-![IAM](images/your-image-file.png)
-
-
-Once, both the plugins are installed, restart your Jenkins service.
-
-Now, we have to set our AWS credentials on Jenkins
-
-Go to **Manage Plugins** and click on **Credentials**
-
-![IAM](images/your-image-file.png)
-
-Click on **global**.
-
-
-Click on **Add credentials**
-
-
-Select **AWS Credentials** as **Kind** and add the **ID** same as shown in the below snippet except for your AWS Access Key & Secret Access key and click on **Create**.
-
-![IAM](images/your-image-file.png)
-
-Now, Go to the **Dashboard** and click Create a **job**
-
-![IAM](images/your-image-file.png)
-
-Select the **Pipeline** and provide the name to your **Jenkins Pipeline** then click on **OK**.
-
-![IAM](images/your-image-file.png)
-
 Now, Go to the GitHub Repository in which the Jenkins Pipeline code is located to deploy the EKS service using Terraform.
 
 https://github.com/Gerardbulky/End-to-End-Kubernetes-DevSecOps-Resume-Project/blob/master/Jenkins-Pipeline-Code/Jenkinsfile-EKS-Terraform
@@ -491,7 +450,7 @@ EKS-Terraform Code- https://github.com/Gerardbulky/End-to-End-Kubernetes-DevSecO
 
 After pasting the Jenkinsfile code, click on **Save** & **Apply**.
 
-![IAM](images/your-image-file.png)
+![IAM](images/eks-script.png)
 
 
 Click on **Build**
@@ -499,12 +458,12 @@ Click on **Build**
 
 You can see our **Pipeline** was **successful**
 
-![IAM](images/your-image-file.png)
+![IAM](images/eks-pipeline-successful.png)
 
 
 You can validate how many resources have been created by going to the **console logs**
 
-![IAM](images/your-image-file.png)
+![IAM](images/eks-console-output.png)
 
 
 Now, we will configure the EKS Cluster on the Jenkins Server
@@ -645,46 +604,86 @@ The username and password will be **admin**
 
 Click on **Log In**.
 
-![IAM](images/your-image-file.png)
+![IAM](images/sonar-login.webp)
 
 Update the password
 
-![IAM](images/your-image-file.png)
+![IAM](images/update-sonar-user.webp)
 
 Click on **Administration** then **Security**, and select **Users**
 
-![IAM](images/your-image-file.png)
+![IAM](images/sonar-admin.webp)
 
 Click on **Update tokens**
 
-![IAM](images/your-image-file.png)
+![IAM](images/update-token.webp)
 
 Click on **Generate**
 
-![IAM](images/your-image-file.png)
+![IAM](images/generate-token.webp)
 
 Copy the **token** and keep it somewhere safe and click on **Done**.
 
-![IAM](images/your-image-file.png)
+![IAM](images/copy-token.webp)
 
 Now, we have to configure **webhooks** for quality checks.
 
 Click on **Administration** then, **Configuration** and select **Webhooks**
 
-![IAM](images/your-image-file.png)
+![IAM](images/webhook.webp)
 
 Click on **Create**
 
-![IAM](images/your-image-file.png)
+![IAM](images/safe-webhook.webp)
 
 Provide the name to your project and in the URL, provide the jenkins server public ip with port 8080 and add sonarqube-webhook in suffix and click on Create.
 
 http://<jenkins-server-public-ip:8080/sonarqube-webhook/
 
-![IAM](images/your-image-file.png)
+![IAM](images/sonar-webhook.webp)
 
 Here, you can see the **webhook**.
 
+Now, we have to create a Project for our application code.
+
+Click on Manually.
+
+![IAM](images/app-webhook.webp)
+
+Provide the display name to your Project and click on Setup
+
+![IAM](images/create-project.webp)
+
+Click on Locally.
+
+![IAM](images/select-locally.webp)
+
+Select the Use existing token and click on Continue.
+
+![IAM](images/use-existing-token.webp)
+
+Select **Other** and **Linux** as OS.
+
+After performing the above steps, you will get the command which you can see in the below snippet.
+
+Now, use the command in the Jenkins Frontend Pipeline where Code Quality Analysis will be performed.
+
+![IAM](images/code-analysis-command.webp)
+
+Now, we have to store the sonar credentials.
+
+Go to **Dashboard** -> **Manage Jenkins** -> **Credentials**
+
+Select the kind as Secret text paste your token in Secret and keep other things as it is.
+
+Click on Create
+
+![IAM](images/your-image-file.png)
+
+
+
+
+#### Install the required plugins and configure the plugins to deploy our Application 
 
 Now, we have to configure the installed plugins.
 
