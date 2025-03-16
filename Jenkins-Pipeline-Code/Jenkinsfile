@@ -8,11 +8,9 @@ pipeline {
     }
 
     stages {
-        stages {
-            stage('Check Node.js') {
-                steps {
-                    sh 'node -v'
-                }
+        stage('Check Node.js') {
+            steps {
+                sh 'node -v'
             }
         }
         stage('Git Clone') {
