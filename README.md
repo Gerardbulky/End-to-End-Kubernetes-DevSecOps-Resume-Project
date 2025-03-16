@@ -113,16 +113,6 @@ Then run your command to create a  key pair called "Jenkins-key" and output it, 
 aws ec2 create-key-pair --key-name Jenkins-key --query "KeyMaterial" --output text > /home/ubuntu/Downloads/Jenkins-key.pem
 ``` -->
 
-
-Verify the File Exists
-```sh
-ls -l /home/ubuntu/.ssh
-```
-Set Proper Permissions
-```sh
-chmod 400 /home/ubuntu/.ssh/Jenkins-key.pem
-```
-
 <!-- ### Creating DynamoDB Table Manually
 We are going to create a DynamoDB table for remote locking, to lock our Terraform files.
 ```sh
@@ -186,6 +176,16 @@ Now, connect to your Jenkins-Server by clicking on Connect.
 Copy the ssh command and paste it on your local machine.
 
 ![IAM](images/your-image-file.png)
+
+
+Verify the File Exists
+```sh
+sudo ls -l /home/ubuntu/.ssh/SSH-key.pem
+```
+Set Proper Permissions
+```sh
+sudo chmod 400 /home/ubuntu/.ssh/SSH-key.pem
+```
 
 ## Step 4: Configure the Jenkins
 Now, we logged into our **Jenkins server**.
