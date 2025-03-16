@@ -73,11 +73,12 @@ unzip awscliv2.zip
 sudo ./aws/install
 ````
 
-#### Configure AWS CLI
+#### Setting up Environmental variable
+Setting these values in your environmental variables ensures that AWS CLI and Terraform can securely interact with your AWS resources based on the permissions granted to the associated IAM entity.
 
 Now, Configure both the tools
 
-#### Configure Terraform
+#### Configure Terraform & AWS CLI 
 
 Edit the file /etc/environment using the below command and add the highlighted lines and add your keys at the blur space.
 
@@ -93,12 +94,16 @@ After doing the changes, restart your machine to reflect the changes of your env
 Run the below command, and add your keys
 
 ````sh
+sudo su
+````
+
+````sh
 aws configure
 ````
 
 ![IAM](images/your-image-file.png)
 
-### PEM Directory
+<!-- ### PEM Directory
 We are now going to create a **Download** directory to store the PEM file
 ```sh
 mkdir -p /home/ubuntu/Downloads
@@ -106,14 +111,16 @@ mkdir -p /home/ubuntu/Downloads
 Then run your command to create a  key pair called "Jenkins-key" and output it, in the /home/ubuntu/Download directory:
 ```sh
 aws ec2 create-key-pair --key-name Jenkins-key --query "KeyMaterial" --output text > /home/ubuntu/Downloads/Jenkins-key.pem
-```
+``` -->
+
+
 Verify the File Exists
 ```sh
-ls -l /home/ubuntu/Downloads/
+ls -l /home/ubuntu/.ssh
 ```
 Set Proper Permissions
 ```sh
-chmod 400 /home/ubuntu/Downloads/Jenkins-key.pem
+chmod 400 /home/ubuntu/.ssh/Jenkins-key.pem
 ```
 
 <!-- ### Creating DynamoDB Table Manually
@@ -336,9 +343,9 @@ To initialize Vault use vault operator init
 vault operator init -key-shares=1 -key-threshold=1
 ```
 Copy the **Unseal Key** and **Initial Root** and paste on a nodepad. 
-```sh
+<!-- ```sh
 echo $VAULT_TOKEN
-```
+``` -->
 ```sh
 vault operator unseal
 ```
