@@ -887,7 +887,21 @@ To do that, just run the below command on your local machine from where you crea
 terraform destroy -var-file=variables.tfvars --auto-approve
 ```
 
-Conclusion
+#### Resolving error on SonarQube during build process
+- check if nodejs is installed on the machine running the build.
+```sh
+node -v
+```
+- install Node.js
+```sh
+sudo apt update && sudo apt install -y nodejs npm
+```
+- Verify is Nodejs is installed
+```sh
+which node
+```
+
+## Conclusion
 Congratulations on completing the End-to-End DevSecOps Kubernetes Project! This project provides hands-on experience with DevOps practices, AWS services, Kubernetes, and continuous integration and deployment. Remember to build on this foundation and explore more advanced concepts in your DevOps journey. If you have any questions or want to share your experiences, don’t hesitate to reach out. Happy Learning!
 
 ## Security Practices

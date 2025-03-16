@@ -8,11 +8,6 @@ pipeline {
     }
 
     stages {
-        stage('Check Node.js') {
-            steps {
-                sh 'node -v'
-            }
-        }
         stage('Git Clone') {
             steps {
                 git branch: 'main', url: 'https://github.com/Gerardbulky/End-to-End-Kubernetes-DevSecOps-Resume-Project.git'
